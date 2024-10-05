@@ -56,8 +56,9 @@ with docx2python(sys.argv[1], html=True) as docx_content:
             "definitions": [render_rule_text(d) for d in definition if d]
         })
 
-with open("output.html", "w") as f:
-    f.write('''
+
+html_str = ""
+html_str += '''
     <!DOCTYPE html>
 <html>
 <head>
@@ -87,38 +88,39 @@ with open("output.html", "w") as f:
     </style>
   </head>
 <body>
-    ''')
+'''
 
-    for rule in rules:
-        text = rule["text"]
-        id = rule["id"]
-        type = rule["type"]
-        html_type = "p"
-        if type == "section":
-            html_type = "h2"
-            f.write('<div class="pagebreak"></div>')
-        elif type == "subsection":
-            html_type = "h3"
-        f.write(f"<{html_type} class=\"{type}\" id=\"id{id}\">{text}</{html_type}>")
+for rule in rules:
+    text = rule["text"]
+    id = rule["id"]
+    type = rule["type"]
+    html_type = "p"
+    if type == "section":
+        html_type = "h2"
+        html_str += '<div class="pagebreak"></div>'
+    elif type == "subsection":
+        html_type = "h3"
+    html_str += f"<{html_type} class=\"{type}\" id=\"id{id}\">{text}</{html_type}>"
 
-        examples = rule["examples"]
-        if examples:
-            f.write("<div class=\"examples\">")
-            for example in examples:
-                f.write(example)
-            f.write("</div>")
+    examples = rule["examples"]
+    if examples:
+        html_str += "<div class=\"examples\">"
+        for example in examples:
+            html_str += example
+        html_str += "</div>"
 
-    f.write('<div class="pagebreak"></div>')
-    f.write(f"<h2 class=\"section\">Glossary</h2>")
-    for term in terms:
-        name = term["term"]
-        f.write(f"<div class=\"term\">{name}</div>")
-        for defun in term["definitions"]:
-            f.write(f"<p class=\"defun\">{defun}</p>")
-    f.write('''
+html_str += '<div class="pagebreak"></div>'
+html_str += f"<h2 class=\"section\">Glossary</h2>"
+for term in terms:
+    name = term["term"]
+    html_str += f"<div class=\"term\">{name}</div>"
+    for defun in term["definitions"]:
+        html_str += f"<p class=\"defun\">{defun}</p>"
+
+html_str += '''
 </body>
 </html>
-    ''')
+'''
 
 options = {
     'page-size': 'Letter',
@@ -127,4 +129,6 @@ options = {
     'margin-bottom': '1.2in',
     'margin-left': '1.2in'
 }
-pdfkit.from_url('output.html', 'out.pdf', options=options)
+
+out_name = sys.argv[1].replace(".docx", "+.pdf")
+pdfkit.from_string(html_str, out_name, options=options)
