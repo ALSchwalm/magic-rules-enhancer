@@ -24,6 +24,7 @@ def render_example(example):
     return f"<div class=\"example\">{example}</div>"
 
 rules = []
+terms = []
 
 with docx2python(sys.argv[1], html=True) as docx_content:
     contents = docx_content.text
@@ -31,8 +32,8 @@ with docx2python(sys.argv[1], html=True) as docx_content:
     intro, contents = contents.split("\nCredits\n", maxsplit=1)
     contents, end = contents.rsplit("\nGlossary\n", maxsplit=1)
 
-    for i, rule in enumerate(contents.split("\n\n\n")):
-        if not rule:
+    for rule in contents.split("\n\n\n"):
+        if not rule.strip():
             continue
         rule, *examples = rule.strip().splitlines()
 
@@ -40,9 +41,19 @@ with docx2python(sys.argv[1], html=True) as docx_content:
         rule = render_rule_text(rule)
         rules.append({
             "text": rule,
-            "examples": [render_example(e) for e in examples],
+            "examples": [render_example(e) for e in examples if e],
             "type": type,
             "id": id
+        })
+
+    glossary, _ = end.split("\nCredits\n")
+    for term in glossary.split("\n\n\n"):
+        if not term.strip():
+            continue
+        term, *definition = term.strip().splitlines()
+        terms.append({
+            "term": term,
+            "definitions": [render_rule_text(d) for d in definition if d]
         })
 
 with open("output.html", "w") as f:
@@ -67,10 +78,12 @@ with open("output.html", "w") as f:
         font-family: "Times New Roman" !important;
       }
       .subsection { font-size: 1em; font-weight: normal; }
-      .rule,.subrule { text-indent: -30px; }
+      .rule,.subrule { text-indent: -30px; margin-bottom: 0px; }
       .rule { margin-left: 60px; }
       .subrule { margin-left: 90px; }
       .examples { margin-left: 120px; font-style: italic; }
+      .term { font-weight: bold; margin-top: 16px; }
+      .defun { margin-top: 0px; margin-bottom: 0px; }
     </style>
   </head>
 <body>
@@ -94,6 +107,14 @@ with open("output.html", "w") as f:
             for example in examples:
                 f.write(example)
             f.write("</div>")
+
+    f.write('<div class="pagebreak"></div>')
+    f.write(f"<h2 class=\"section\">Glossary</h2>")
+    for term in terms:
+        name = term["term"]
+        f.write(f"<div class=\"term\">{name}</div>")
+        for defun in term["definitions"]:
+            f.write(f"<p class=\"defun\">{defun}</p>")
     f.write('''
 </body>
 </html>
