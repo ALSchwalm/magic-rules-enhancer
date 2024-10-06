@@ -24,6 +24,17 @@ def render_example(example):
     example = render_rule_text(example)
     return f"<div class=\"example\">{example}</div>"
 
+if len(sys.argv) != 2:
+    print(f"""
+Usage: {sys.argv[0]} PATH
+
+PATH must be the path to an official Magic: The Gathering
+comprehensive rules file in 'docx' format. This script will
+produce a PDF version of this file in the current working
+directory with additional internal links and table-of-contents.
+    """)
+    sys.exit(1)
+
 rules = []
 terms = []
 
