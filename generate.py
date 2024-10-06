@@ -21,6 +21,7 @@ def render_rule_text(rule):
     return re.sub(r"rule (\d+(\.\d+([a-z]+)?)?)", r'<a href="#id\1">rule \1</a>', rule)
 
 def render_example(example):
+    example = render_rule_text(example)
     return f"<div class=\"example\">{example}</div>"
 
 rules = []
@@ -69,10 +70,10 @@ html_str += '''
           font-family: "Times New Roman";
           src: url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.eot");
           src: url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.eot?#iefix")format("embedded-opentype"),
-          url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.woff2")format("woff2"),
-          url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.woff")format("woff"),
-          url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.ttf")format("truetype"),
-          url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.svg#Times New Roman")format("svg");
+               url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.woff2")format("woff2"),
+               url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.woff")format("woff"),
+               url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.ttf")format("truetype"),
+               url("https://db.onlinewebfonts.com/t/32441506567156636049eb850b53f02a.svg#Times New Roman")format("svg");
 
       }
       * {
@@ -131,4 +132,8 @@ options = {
 }
 
 out_name = sys.argv[1].replace(".docx", "+.pdf")
-pdfkit.from_string(html_str, out_name, options=options)
+pdfkit.from_string(html_str, out_name, options=options,
+                toc = {
+                    "toc-header-text": "Magic: The Gathering Comprehensive Rules",
+                },
+                verbose=True)
