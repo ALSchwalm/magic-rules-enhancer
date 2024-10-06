@@ -28,7 +28,7 @@ python3 enhance.py MagicCompRules20240917.docx
 ```
 
 This will produce a corresponding `MagicCompRules20240917+.pdf` file. Pre-built
-versions of the rules PDF are available in the Releases tab.
+versions of the rules PDF are available under [Releases](https://github.com/ALSchwalm/magic-rules-enhancer/releases).
 
 How it works
 ------------
